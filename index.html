@@ -2425,6 +2425,7 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <button type="button" onclick="copyOriginalHtmlPatchSnippet()" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-[#9ae06e] hover:text-[#082428] text-xs font-bold transition" title="ينسخ كود جاهز للصق قبل </body> في ملف index.html الأصلي على GitHub">📋 نسخ كود الحقن لـ index.html</button>
           <button type="button" onclick="exportSiteConfigJSON()" class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-[#9ae06e] hover:text-[#082428] text-xs font-bold transition">⬇ تصدير JSON</button>
           <label class="px-3.5 py-2 rounded-full bg-white/10 hover:bg-[#9ae06e] hover:text-[#082428] text-xs font-bold transition cursor-pointer">
             ⬆ استيراد JSON
@@ -3117,6 +3118,38 @@
         showToast("✅ تم جلب أحدث البيانات من السحابة!");
       } catch (e) {
         showToast("⚠️ فشل الجلب من السحابة");
+      }
+    }
+
+    function copyOriginalHtmlPatchSnippet() {
+      const payload = {
+        config: CONFIG,
+        destinations: DESTINATIONS,
+        trips: TRIPS,
+        blogPosts: BLOG_POSTS,
+        shopProducts: SHOP_PRODUCTS
+      };
+      const snippet = [
+        "<script>",
+        "(function(){",
+        "  const __TTL_BAKED__ = " + JSON.stringify(payload) + ";",
+        "  if (typeof CONFIG === 'object' && __TTL_BAKED__.config) Object.assign(CONFIG, __TTL_BAKED__.config);",
+        "  if (Array.isArray(DESTINATIONS) && __TTL_BAKED__.destinations) { DESTINATIONS.length = 0; DESTINATIONS.push(...__TTL_BAKED__.destinations); }",
+        "  if (Array.isArray(TRIPS) && __TTL_BAKED__.trips) { TRIPS.length = 0; TRIPS.push(...__TTL_BAKED__.trips); }",
+        "  if (Array.isArray(BLOG_POSTS) && __TTL_BAKED__.blogPosts) { BLOG_POSTS.length = 0; BLOG_POSTS.push(...__TTL_BAKED__.blogPosts); }",
+        "  if (Array.isArray(SHOP_PRODUCTS) && __TTL_BAKED__.shopProducts) { SHOP_PRODUCTS.length = 0; SHOP_PRODUCTS.push(...__TTL_BAKED__.shopProducts); }",
+        "})();",
+        "</" + "script>"
+      ].join("\n");
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(snippet).then(() => {
+          showToast("✅ تم نسخ كود الحقن! الصقه قبل </body> في index.html على GitHub");
+        }).catch(() => {
+          prompt("انسخ الكود التالي والصقه قبل </body> في index.html:", snippet);
+        });
+      } else {
+        prompt("انسخ الكود التالي والصقه قبل </body> في index.html:", snippet);
       }
     }
 
